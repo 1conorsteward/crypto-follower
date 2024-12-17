@@ -178,5 +178,5 @@ app.get("/api/live/:coinId", async (req, res) => {
   }
 });
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080; // Use dynamic port for deployment
 app.listen(PORT, () => console.log(`Proxy server running on port ${PORT}`));

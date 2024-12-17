@@ -28,7 +28,7 @@ const HistoricalChart = ({ coinId }) => {
     const fetchHistoricalData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/historical/${coinId}`
+          `https://crypto-follower.onrender.com/api/historical/${coinId}`
         );
         const prices = response.data.prices;
 
@@ -70,7 +70,7 @@ const HistoricalChart = ({ coinId }) => {
     const fetchCurrentPrice = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/live/${coinId}`
+          `https://crypto-follower.onrender.com/api/live/${coinId}`
         );
         const price = response.data[coinId]?.usd || null;
         setCurrentPrice(price);

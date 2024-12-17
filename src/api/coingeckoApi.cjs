@@ -4,7 +4,7 @@ const axios = require("axios");
 const fetchHistoricalPrices = async (coinId, currency = "usd", days = "max") => {
   try {
     const response = await axios.get(
-      `http://localhost:8080/api/${coinId}/market_chart`, // Proxy endpoint
+      `https://crypto-follower.onrender.com/api/${coinId}/market_chart`, // Proxy endpoint
       { params: { vs_currency: currency, days } }
     );
     return response.data.prices; // Returns array of [timestamp, price]

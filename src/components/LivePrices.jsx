@@ -10,7 +10,7 @@ const LivePrices = ({ coinId }) => {
     const fetchLivePrice = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/live/${coinId}`
+          `https://crypto-follower.onrender.com/api/live/${coinId}`
         );
 
         setPrice(response.data[coinId]?.usd || "N/A");
