@@ -10,14 +10,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -r https://github.com/1conorsteward/crypto-follower.git"
+    "deploy": "gh-pages -d dist -r git@github.com:1conorsteward/crypto-follower.git"
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^28.0.2",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

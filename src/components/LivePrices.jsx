@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import PropTypes from "prop-types"; // Import PropTypes
-import axios from "axios";
+import PropTypes from "prop-types";
+
+const CACHE_DURATION = 10 * 60 * 1000; // Cache duration: 10 minutes
+const cache = {}; // In-memory cache
 
 const LivePrices = ({ coinId }) => {
   const [price, setPrice] = useState(null);
@@ -8,12 +10,35 @@ const LivePrices = ({ coinId }) => {
 
   useEffect(() => {
     const fetchLivePrice = async () => {
+      // Check cache
+      const cachedData = cache[coinId];
+      if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+        console.log(`Serving cached live price for ${coinId}`);
+        setPrice(cachedData.price);
+        return;
+      }
+
+      // Fetch new data from API
       try {
-        const response = await axios.get(
-          `https://crypto-follower.onrender.com/api/live/${coinId}`
+        console.log(`Fetching live price for ${coinId}`);
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`
         );
 
-        setPrice(response.data[coinId]?.usd || "N/A");
+        if (!response.ok) {
+          throw new Error(`API response error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const fetchedPrice = data[coinId]?.usd || "N/A";
+
+        // Update cache
+        cache[coinId] = {
+          price: fetchedPrice,
+          timestamp: Date.now(),
+        };
+
+        setPrice(fetchedPrice);
         setError(null);
       } catch (err) {
         console.error("Error fetching live price:", err.message);
@@ -22,6 +47,8 @@ const LivePrices = ({ coinId }) => {
     };
 
     fetchLivePrice();
+
+    // Set interval for periodic updates
     const interval = setInterval(fetchLivePrice, 30000); // Update every 30 seconds
     return () => clearInterval(interval); // Cleanup
   }, [coinId]);
