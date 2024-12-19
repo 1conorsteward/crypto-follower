@@ -1,3 +1,28 @@
+/**
+ * HistoricalChart Component
+ * Conor Steward
+ * 12/19/24
+ * 1conorsteward@gmail.com
+ * This component fetches and displays the historical price data of a cryptocurrency.
+ * It uses caching, rate limiting, and advanced calculations to provide a seamless
+ * and efficient user experience. The chart visualizes the historical prices, while
+ * additional data like average monthly cost and live price comparison are also displayed.
+ * 
+ * Features:
+ * - Fetches historical price data using the CoinGecko API
+ * - Utilizes caching and rate-limited requests for efficiency
+ * - Calculates and displays monthly averages
+ * - Compares current live price to the average monthly cost
+ * - Provides error handling with user-friendly messages
+ * - Uses Chart.js for data visualization
+ * 
+ * Props:
+ * - coinId (string, required): The ID of the cryptocurrency to fetch data for
+ * 
+ * Styling:
+ * - Tailwind CSS for responsive and modern design
+ */
+
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
@@ -16,11 +41,18 @@ import {
 // Register required Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+// Constants
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
 const RATE_LIMIT_INTERVAL = 1200; // 1.2 seconds between API calls
 let lastRequestTime = 0;
 
-// Utility: Rate-limited fetch
+/**
+ * Utility function to handle rate-limited fetch requests.
+ * Ensures a minimum interval between API calls.
+ * 
+ * @param {Function} fetchFunction - The function to execute the fetch request
+ * @returns {Promise<any>} - The result of the fetch function
+ */
 const rateLimitedFetch = async (fetchFunction) => {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
@@ -34,7 +66,14 @@ const rateLimitedFetch = async (fetchFunction) => {
   return fetchFunction();
 };
 
-// Utility: Fetch with cache
+/**
+ * Utility function to fetch data with caching support.
+ * Checks the cache before making an API call.
+ * 
+ * @param {string} key - The cache key
+ * @param {Function} fetchFunction - The function to execute the fetch request
+ * @returns {Promise<any>} - The fetched or cached data
+ */
 const fetchWithCache = async (key, fetchFunction) => {
   const cachedData = localStorage.getItem(key);
   if (cachedData) {
@@ -50,7 +89,12 @@ const fetchWithCache = async (key, fetchFunction) => {
   return data;
 };
 
-// Utility: Calculate monthly averages
+/**
+ * Utility function to calculate monthly averages from historical price data.
+ * 
+ * @param {Array} prices - Array of price data points [timestamp, price]
+ * @returns {Object} - Monthly averages in the format { month: averagePrice }
+ */
 const calculateMonthlyAverages = (prices) => {
   const monthlyTotals = {};
   const monthlyCounts = {};
@@ -76,6 +120,15 @@ const calculateMonthlyAverages = (prices) => {
   return monthlyAverages;
 };
 
+/**
+ * HistoricalChart Component
+ * 
+ * Displays historical price data of a cryptocurrency using a line chart and provides
+ * insights such as average monthly cost and current price comparison.
+ * 
+ * @param {Object} props - The component props
+ * @param {string} props.coinId - The ID of the cryptocurrency to fetch data for
+ */
 const HistoricalChart = ({ coinId }) => {
   const [chartData, setChartData] = useState(null);
   const [error, setError] = useState(null);
@@ -89,18 +142,11 @@ const HistoricalChart = ({ coinId }) => {
       try {
         console.log(`Fetching historical data for coinId: ${coinId}`);
         const data = await fetchWithCache(coinId, async () => {
-          const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`;
-          console.log("Constructed URL for historical data:", url);
-
           const response = await rateLimitedFetch(() =>
-            axios.get(url, {
+            axios.get(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`, {
               params: { vs_currency: "usd", days: "90", interval: "daily" },
             })
           );
-
-          if (response.data) {
-            console.log(`Received data for ${coinId}:`, response.data);
-          }
 
           const { prices } = response.data;
           const monthlyAverages = calculateMonthlyAverages(prices);
@@ -117,7 +163,7 @@ const HistoricalChart = ({ coinId }) => {
         setAverageCost(average);
 
         setChartData({
-          labels: labels,
+          labels,
           datasets: [
             {
               label: `${coinId.toUpperCase()} Historical Prices (USD)`,
@@ -130,12 +176,8 @@ const HistoricalChart = ({ coinId }) => {
         });
         setError(null);
       } catch (err) {
-        if (err.response) {
-          console.error(`API Response Error for ${coinId}:`, err.response.data);
-        } else {
-          console.error(`Error fetching historical data for ${coinId}:`, err.message);
-        }
         setError("Failed to fetch historical chart data");
+        console.error(err);
       }
     };
 
@@ -146,7 +188,6 @@ const HistoricalChart = ({ coinId }) => {
   useEffect(() => {
     const fetchCurrentPrice = async () => {
       try {
-        console.log(`Fetching live price for ${coinId}`);
         const price = await fetchWithCache(`${coinId}_live`, async () => {
           const response = await rateLimitedFetch(() =>
             axios.get("https://api.coingecko.com/api/v3/simple/price", {
@@ -164,11 +205,7 @@ const HistoricalChart = ({ coinId }) => {
           setPercentDifference(percent);
         }
       } catch (err) {
-        if (err.response) {
-          console.error(`API Response Error for live price of ${coinId}:`, err.response.data);
-        } else {
-          console.error(`Error fetching live price for ${coinId}:`, err.message);
-        }
+        console.error(err);
       }
     };
 
@@ -184,7 +221,6 @@ const HistoricalChart = ({ coinId }) => {
         <p className="text-red-400">{error}</p>
       ) : chartData ? (
         <div>
-          {/* Historical Chart */}
           <div className="w-full max-w-screen-lg mx-auto h-96 overflow-hidden mb-4">
             <Line
               data={chartData}
@@ -195,14 +231,12 @@ const HistoricalChart = ({ coinId }) => {
             />
           </div>
 
-          {/* Average Monthly Cost */}
           <div className="text-center mb-4">
             <h3 className="text-lg font-semibold">
               Average Monthly Cost: <span className="text-blue-400">${averageCost}</span>
             </h3>
           </div>
 
-          {/* Current Price vs Monthly Average */}
           {currentPrice && percentDifference && (
             <div className="text-center">
               <h3 className="text-lg font-semibold">

@@ -1,42 +1,68 @@
+/*
+ * Global Stylesheet
+ * Conor Steward
+ * 12/19/24
+ * 1conorsteward@gmail.com
+ * This file contains global CSS styles for the application's layout and components.
+ * The styles aim to provide a responsive, visually appealing, and accessible design.
+ * 
+ * Sections:
+ * - Root Element Styling
+ * - Logo Animation and Hover Effects
+ * - Media Query for Animations
+ * - Card Styling
+ * - Miscellaneous Styling
+ */
+
+/* Root Element Styling */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 1280px; /* Set a maximum width for the application container */
+  margin: 0 auto; /* Center the container horizontally */
+  padding: 2rem; /* Add spacing inside the container */
+  text-align: center; /* Center-align text within the container */
 }
 
+/* Logo Styling */
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  height: 6em; /* Set the logo height */
+  padding: 1.5em; /* Add padding around the logo */
+  will-change: filter; /* Optimize performance for filter property transitions */
+  transition: filter 300ms; /* Smooth transition for hover effect */
 }
 
+/* Logo Hover Effects */
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa); /* Apply a glow effect on hover */
+}
+
+/* React Logo Specific Hover Effect */
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa); /* Apply a React-specific glow effect */
+}
+
+/* Logo Spin Animation */
 @keyframes logo-spin {
   from {
-    transform: rotate(0deg);
+    transform: rotate(0deg); /* Initial rotation state */
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg); /* Final rotation state */
   }
 }
 
+/* Media Query for Reduced Motion Preference */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+    animation: logo-spin infinite 20s linear; /* Apply continuous spinning animation */
   }
 }
 
+/* Card Styling */
 .card {
-  padding: 2em;
+  padding: 2em; /* Add padding inside the card */
 }
 
+/* Text Styling for Documentation Links */
 .read-the-docs {
-  color: #888;
+  color: #888; /* Set a neutral text color */
 }
